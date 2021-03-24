@@ -4,7 +4,7 @@
 #include <avr/wdt.h>
 const byte max_timeout = 10;
 const byte ssid_len = 32;
-const byte max_ap = 15;
+const byte max_ap = 10;
 
 char ssidmenu[max_ap][ssid_len];
 //try pointer array
@@ -68,7 +68,8 @@ void initEncoder(){
 void customRect(int x, int y, int w, int h, int c) { return lcd.fillRect(x, y, w, h, c); }
 
 const int itemHt = 20;
-const int numMenus = sizeof(ap_list) / sizeof(char*);
+//const int numMenus = sizeof(ap_list) / sizeof(char*);
+int numMenus =16;
 const int numScrLines = SCR_HT/itemHt;  // 160/20=8
 int menuSel=0, menuSelOld=0;
 int menuStart = 0;
@@ -379,7 +380,7 @@ void get_wifi_list(char ap_arr[max_ap][ssid_len], char* raw_str) {
 
 /*---------------------------------------------------------------*/
 
-
+int count4=0;
 //WIFI_connect
 void  Wifi_Connect(){
   //先用SERIAL視窗
@@ -396,22 +397,14 @@ void  Wifi_Connect(){
         
         break;
       }
-      
-  } /*
-    for (int i=0;i<max_ap;i++){
-      for(int j=0;j<ssid_len;j++){
-      ssidmenu[i][j]=ap_list[i][j];
-      
-      }
-      Serial.println(ssidmenu[i]);
-    }*/
-    Serial.println("TEST");
-   /* for (int i=0;i<max_ap;i++){
-    menuTxt[i] =  ap_list[i];
-    Serial.print(String(i)+String(" : "));
-      Serial.println(menuTxt[i]);
-   
-  }*/
+      count4+=1;
+  }
+  
+  numMenus = count4;
+    
+  
+
+
     //Serial.print("setup end\r\n");
      Serial.println("\nWhich one do you want to select?");
 
@@ -435,7 +428,7 @@ void setup() {
   font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
   initEncoder();
   initMenu();
- 
+
 
     
     
