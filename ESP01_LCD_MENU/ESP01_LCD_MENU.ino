@@ -384,7 +384,7 @@ int count4=0;
 //WIFI_connect
 void  Wifi_Connect(){
   //先用SERIAL視窗
-  Serial.println("Setup begin");
+  //Serial.println("Setup begin");
   check_wifi(wifi);
   set_wifi_opr(wifi);
 
@@ -406,7 +406,7 @@ void  Wifi_Connect(){
 
 
     //Serial.print("setup end\r\n");
-     Serial.println("\nWhich one do you want to select?");
+     //Serial.println("\nWhich one do you want to select?");
 
 }
 
@@ -417,7 +417,7 @@ void setup() {
   //WIFI_connect
   Serial.begin(115200);
   Wifi_Connect();
-  Serial.println("wificonnectok");
+  //Serial.println("wificonnectok");
   
 
 
