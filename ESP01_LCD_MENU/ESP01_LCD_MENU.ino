@@ -1,10 +1,10 @@
 
 #include <EEPROM.h>
 #include "ESP8266.h"
-
+#include <avr/wdt.h>
 const byte max_timeout = 10;
 const byte ssid_len = 32;
-const byte max_ap = 10;
+const byte max_ap = 15;
 
 char ssidmenu[max_ap][ssid_len];
 //try pointer array
@@ -13,7 +13,8 @@ char *menuTxt[]={};
 char WifiSelect ;
 char password[]="1004soc1004";
 
-
+char ap_list[max_ap][ssid_len];
+int flagConfirmWifiInitial = 0;
 /*---------------------------------------------------------------*/
 //LCD
 /*
@@ -67,7 +68,7 @@ void initEncoder(){
 void customRect(int x, int y, int w, int h, int c) { return lcd.fillRect(x, y, w, h, c); }
 
 const int itemHt = 20;
-const int numMenus = sizeof(menuTxt) / sizeof(char*);
+const int numMenus = sizeof(ap_list) / sizeof(char*);
 const int numScrLines = SCR_HT/itemHt;  // 160/20=8
 int menuSel=0, menuSelOld=0;
 int menuStart = 0;
@@ -97,7 +98,7 @@ void printMenu(int full=0)
 {
   int n = numMenus<numScrLines ? numMenus : numScrLines;
   for (int i = 0; i < n; i++) {
-    formatMenu(menuTxt[i + menuStart], buf, 14);
+    formatMenu(ap_list[i + menuStart], buf, 14);
     full ? lcd.fillRect(0,i*itemHt,SCR_WD,itemHt,bgCol) : lcd.fillRect(3,2+i*itemHt,120-4,16,bgCol);
     printMenuItem(i,buf);
   }
@@ -212,7 +213,7 @@ void menuItemAction(int butt)
 {
   //lcd.fillScreen(RGBto565(150,20,150));
   //font.setColor(WHITE);  font.printStr(10, 10, "SOCLAB");
-  showSelected(menuTxt[butt]);
+  showSelected(ap_list[butt]);
   int isPressedDown2 = checkPressDown();
  
   Serial.print("isPressedDown2:");
@@ -241,9 +242,9 @@ void handleMenu()
   // check press down ?
   // check press up ?
   //int butt = checkButton(); // confirm.
-  for(int i=0;i<max_ap;i++){
+  /*for(int i=0;i<max_ap;i++){
     Serial.println(menuTxt[i]);
-  }
+  }*/
   
   int isPressedUp = checkPressUp();
   int isPressedDown = checkPressDown();
@@ -386,58 +387,78 @@ void  Wifi_Connect(){
   check_wifi(wifi);
   set_wifi_opr(wifi);
 
-  char ap_list[max_ap][ssid_len];
   String buf2 = wifi.getAPList();
 
   get_wifi_list(ap_list, buf2.c_str());
   for (int i=0; i<10; ++i) {
       if ((ap_list[i] != NULL) && (ap_list[i][0] == '\0')) {
         // printf("c is empty\n");
+        
         break;
       }
-      Serial.print(String(i)+String(" : "));
-      Serial.println(ap_list[i]);
-  }
+      
+  } /*
     for (int i=0;i<max_ap;i++){
       for(int j=0;j<ssid_len;j++){
       ssidmenu[i][j]=ap_list[i][j];
-      //Serial.println(ssidmenu[i]);
+      
       }
-    }
+      Serial.println(ssidmenu[i]);
+    }*/
+    Serial.println("TEST");
+   /* for (int i=0;i<max_ap;i++){
+    menuTxt[i] =  ap_list[i];
+    Serial.print(String(i)+String(" : "));
+      Serial.println(menuTxt[i]);
+   
+  }*/
     //Serial.print("setup end\r\n");
      Serial.println("\nWhich one do you want to select?");
 
 }
-    
+/*
 void MENU_POINTER(){
+  flagConfirmWifiInitial = 1;
   for (int i=0;i<max_ap;i++){
-    menuTxt[i] =  ssidmenu[i];
+    menuTxt[i] =  ap_list[i];
    
   }
 }
 
-
+*/
 
 
 void setup() {
-  // put your setup code here, to run once:
+  //wdt_disable();
+  //WIFI_connect
+  Serial.begin(115200);
+  Wifi_Connect();
+  Serial.println("wificonnectok");
+  //MENU_POINTER();
+  /*while(flagConfirmWifiInitial !=1){
+    Serial.print("TEST");
+  }*/
+  //delay(5000);
+
+  
    //LCD_initial
   lcd.init();
   font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
   initEncoder();
   initMenu();
-  //WIFI_connect
-  Serial.begin(9600);
-  Wifi_Connect();
-  MENU_POINTER();
- 
+  /*for(int i = 0 ;i<12;i++){
+    Serial.println([i]);
+  }*/
 
+    //Serial.println(menuTxt[1]);
+    
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
+  
+   //Serial.println(ap_list[1]);
   handleMenu();
-  while(1){};
-  delay(110);
+  
+  
 
 }

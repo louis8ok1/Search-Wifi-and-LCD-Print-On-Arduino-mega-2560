@@ -371,6 +371,11 @@ void setup(void)
  font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
  initEncoder();
  initMenu();
+ for(int i=0;i<12;i++)
+ {
+  Serial.println(menuTxt[i]);
+ }
+ 
  
 }
 
