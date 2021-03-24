@@ -416,16 +416,7 @@ void  Wifi_Connect(){
      Serial.println("\nWhich one do you want to select?");
 
 }
-/*
-void MENU_POINTER(){
-  flagConfirmWifiInitial = 1;
-  for (int i=0;i<max_ap;i++){
-    menuTxt[i] =  ap_list[i];
-   
-  }
-}
 
-*/
 
 
 void setup() {
@@ -434,11 +425,9 @@ void setup() {
   Serial.begin(115200);
   Wifi_Connect();
   Serial.println("wificonnectok");
-  //MENU_POINTER();
-  /*while(flagConfirmWifiInitial !=1){
-    Serial.print("TEST");
-  }*/
-  //delay(5000);
+  
+
+
 
   
    //LCD_initial
@@ -446,17 +435,15 @@ void setup() {
   font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
   initEncoder();
   initMenu();
-  /*for(int i = 0 ;i<12;i++){
-    Serial.println([i]);
-  }*/
+ 
 
-    //Serial.println(menuTxt[1]);
+    
     
 }
 
 void loop() {
   
-   //Serial.println(ap_list[1]);
+   
   handleMenu();
   
   
