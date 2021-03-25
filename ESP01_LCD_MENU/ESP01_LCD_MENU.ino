@@ -15,6 +15,8 @@ char password[]="1004soc1004";
 
 char ap_list[max_ap][ssid_len];
 int flagConfirmWifiInitial = 0;
+
+ESP8266 wifi(Serial1);//for MEGA
 /*---------------------------------------------------------------*/
 //LCD
 /*
@@ -87,6 +89,21 @@ void showSelected(char *txt){
   font.setColor(WHITE);  font.printStr(10, 10, "Selected:");
   font.setColor(YELLOW);  font.printStr(10, 30, txt);
 
+}
+void showSuccessConnect(char *txt){
+  lcd.fillScreen(RGBto565(150,0,150));
+  font.setColor(WHITE);font.printStr(10, 10, "Success :");
+  font.setColor(YELLOW);  font.printStr(10, 30, txt);
+}
+void showfailureConnect(char *txt){
+  lcd.fillScreen(RGBto565(150,0,150));
+  font.setColor(WHITE);font.printStr(10, 10, "Join AP failure.");
+  
+}
+
+void showWait(){
+  lcd.fillScreen(RGBto565(150,0,150));
+  font.setColor(WHITE);font.printStr(30, 30, "Waiting!!!");
 }
 
 void printMenuItem(int y, char *item)
@@ -220,7 +237,24 @@ void menuItemAction(int butt)
   Serial.print("isPressedDown2:");
   Serial.println(isPressedDown2);
 
-  if(isPressedDown2) endMenu(butt);
+  //if(isPressedDown2) endMenu(butt);
+  if(isPressedDown2) //按下Button後開始連接網路
+    {
+      //wait to connect picture
+      showWait();
+      if(wifi.joinAP(ap_list[butt],password)){
+        Serial.print("Join AP success\r\n");
+        Serial.print("IP: ");
+               
+        Serial.println(wifi.getLocalIP().c_str());
+        showSuccessConnect(ap_list[butt]);
+      }
+      else{
+        Serial.print("Join AP failure\r\n");
+        showfailureConnect(ap_list[butt]);
+      }
+      //if(isPressedDown2)endMenu(butt);
+    }
   /*switch(menuMode) {
      //case 0: setValue(); endMenu(butt); break;
      /*case 4: dumpEEPROM(); endMenu(butt); break;
@@ -309,7 +343,7 @@ void handleMenu()
 //WIFI
 
 
-ESP8266 wifi(Serial1);//for MEGA
+
 
 
 void check_wifi(ESP8266 wifi) {
