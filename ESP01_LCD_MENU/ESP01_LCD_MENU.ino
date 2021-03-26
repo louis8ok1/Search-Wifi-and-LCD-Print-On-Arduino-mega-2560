@@ -97,7 +97,7 @@ void showSuccessConnect(char *txt){
 }
 void showfailureConnect(char *txt){
   lcd.fillScreen(RGBto565(150,0,150));
-  font.setColor(WHITE);font.printStr(10, 10, "Join AP failure.");
+  font.setColor(WHITE);font.printStr(10, 10, "Join failure.");
   
 }
 
@@ -233,6 +233,7 @@ void menuItemAction(int butt)
   //font.setColor(WHITE);  font.printStr(10, 10, "SOCLAB");
   showSelected(ap_list[butt]);
   int isPressedDown2 = checkPressDown();
+  int isPressedUp2 = checkPressUp();
  
   Serial.print("isPressedDown2:");
   Serial.println(isPressedDown2);
@@ -248,12 +249,14 @@ void menuItemAction(int butt)
                
         Serial.println(wifi.getLocalIP().c_str());
         showSuccessConnect(ap_list[butt]);
+       
       }
       else{
         Serial.print("Join AP failure\r\n");
         showfailureConnect(ap_list[butt]);
+        
       }
-      //if(isPressedDown2)endMenu(butt);
+     
     }
   /*switch(menuMode) {
      //case 0: setValue(); endMenu(butt); break;
