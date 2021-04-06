@@ -85,14 +85,14 @@ char buf[100];
 //*---------------------------------------
 const int itemWidth = 15;
 const int numMenus_2 = 13;
-const int numScirLines_2 =SCR_WD /itemWidth;
-int menuSel_2 = 0,menuSelOld_2 = 0;
+const int numScirLines_2 = SCR_WD / itemWidth;
+int menuSel_2 = 0, menuSelOld_2 = 0;
 int menuStart_2 = 0;
 int direction = -1;
-int storedPos_2 =-1;
+int storedPos_2 = -1;
+//password
 
-
-
+char password[32];
 
 int menuMode_2 = -1;
 
@@ -128,14 +128,6 @@ void printMenu(int full = 0)
     printMenuItem(i, buf);
   }
 }
-void printMenu_2(int full =0)
-{
-  int n = numMenus_2 <numScirLines_2?numMenus_2 : numScirLines_2;
-  for (int i = 0; i < n ;i++)
-  {
-    
-  }
-}
 
 void formatMenu(char *in, char *out, int num)
 {
@@ -162,9 +154,9 @@ void drawFrame(int sel, int stat)
   lcd.drawRect(0, (sel - menuStart) * itemHt, 15, itemHt - 1, stat ? frameCol : bgCol);
 }
 //x coordinate , y coordinate, Width in pixels, Height in pixels,color
-void drawFrame_2(int  butt ,int sel,int stat)
+void drawFrame_2(int butt, int sel, int stat)
 {
-  lcd.drawRect((sel - menuStart_2)*18 ,(butt-menuStart)*itemHt,15,itemHt-1,stat?frameCol : bgCol);
+  lcd.drawRect((sel - menuStart_2) * 18, (butt - menuStart) * itemHt, 15, itemHt - 1, stat ? frameCol : bgCol);
 }
 
 void initMenu()
@@ -308,25 +300,36 @@ void setValue()
 
 void password_func(int butt)
 {
-  
 
   int isPressedLeft = checkPressLEFT();
   int isPressedRight = checkPressRIGHT();
   int isPressedComfirm = checkPressComfirm();
+  int isPressedUp = checkPressUp();
+  int isPressedDown = checkPressDown();
 
   if (isPressedLeft)
-  { 
-    encoderPos_2-=2;
+  {
+    encoderPos_2 -= 2;
     Serial.print('1');
   }
-    
+
   if (isPressedRight)
   {
-    encoderPos_2+=2;
+    encoderPos_2 += 2;
     Serial.print('2');
-    
   }
-    
+  if (isPressedDown)
+  {
+    Serial.println("TEST1111111");
+
+    direction = -1;
+    lcd.fillScreen(RGBto565(255, 255, 255));
+    initMenu();
+    menuMode = -1;
+    encoderPos_2 =0;
+    butt =0;
+  }
+
   if (encoderPos_2 < 0)
     encoderPos_2 = 0;
   if (encoderPosOld_2 == encoderPos_2 && !isPressedLeft && !isPressedComfirm)
@@ -341,57 +344,67 @@ void password_func(int butt)
     Serial.print("word: ");
     Serial.println(menuTxt[butt][encoderPosOld_2]);
   }*/
-  if(menuMode_2 ==-1)
+  if (menuMode_2 == -1)
   {
 
     menuSel_2 = encoderPos_2 / encoderStep_2;
-    
+
     if (menuSel_2 >= menuStart_2 + numScirLines_2)
-      {
-        
-        menuStart_2  = menuSel_2 - numScirLines_2 + 1;
-        Serial.println(menuStart_2);
-        printMenu();
-      }
+    {
+
+      menuStart_2 = menuSel_2 - numScirLines_2 + 1;
+      Serial.println(menuStart_2);
+      printMenu();
+    }
     if (menuSel_2 < menuStart_2)
-      {
-        menuStart_2 =menuSel_2;
-        printMenu();
-      }
-    if(menuSelOld_2 != menuSel_2)
+    {
+      menuStart_2 = menuSel_2;
+      printMenu();
+    }
+    if (menuSelOld_2 != menuSel_2)
     {
       //TODO: 要改drawFrame，每按一次要往左右邊跑，所以要改變它的X,y
-      drawFrame_2(butt,menuSelOld_2, 0);
-      drawFrame_2(butt,menuSel_2, 1);
+      drawFrame_2(butt, menuSelOld_2, 0);
+      drawFrame_2(butt, menuSel_2, 1);
       //drawMenuSlider();
       menuSelOld_2 = menuSel_2;
-    }
+    } /*
     if (isPressedComfirm)
     { 
       Serial.print("encoderPosOld_2: ");
       Serial.println(encoderPosOld_2);
       Serial.print("word: ");
       Serial.println(menuTxt[butt][encoderPosOld_2]);
+    }*/
+    //TODO:在LCD上顯示所選的字
+    if (isPressedComfirm)
+    {
+      //Serial.println(menuTxt[butt][encoderPosOld_2]);
+      strncat(password, &menuTxt[butt][encoderPosOld_2], 1);
+      Serial.print("Select: ");
+      Serial.println(password);
     }
-  
   }
-
-
-
+  Serial.println(isPressedDown);
 }
 
 void handleMenu()
 {
+
   // check press down ?
   // check press up ?
   //int butt = checkButton(); // confirm.
   int isPressedUp = checkPressUp();
   int isPressedDown = checkPressDown();
   int isPressedComfirm = checkPressComfirm();
-  //這邊+=2也可以解決連按
+  //TODO: 這邊+=2也可以解決連按
+
   if (isPressedUp)
+  {
     encoderPos--;
-    
+    Serial.print("Up");
+  }
+
   if (isPressedDown)
     encoderPos++;
   if (encoderPos < 0)
@@ -444,10 +457,9 @@ void handleMenu()
       menuSelOld = menuSel;
     }
 
-    Serial.println(isPressedComfirm);
     if (isPressedComfirm == 1)
     {
-      
+
       menuItemInit();
       direction = 1;
       return;
@@ -487,7 +499,7 @@ void handleMenu()
 void setup(void)
 {
   Serial.begin(9600);
-  Serial.println(numScirLines_2);
+
   lcd.init();
   font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
   initEncoder();
