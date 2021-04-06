@@ -71,7 +71,7 @@ char *menuTxt[] = {
     "Z a b c d e f",
     "h i j k l m n",
     "o p q r s t u",
-    "v w x y z    "};
+    "v w x y z < >"};
 
 const int itemHt = 20;
 const int numMenus = sizeof(menuTxt) / sizeof(char *);
@@ -161,6 +161,11 @@ void drawFrame(int sel, int stat)
 {
   lcd.drawRect(0, (sel - menuStart) * itemHt, 15, itemHt - 1, stat ? frameCol : bgCol);
 }
+//x coordinate , y coordinate, Width in pixels, Height in pixels,color
+void drawFrame_2(int  butt ,int sel,int stat)
+{
+  lcd.drawRect((sel - menuStart_2)*18 ,(butt-menuStart)*itemHt,15,itemHt-1,stat?frameCol : bgCol);
+}
 
 void initMenu()
 {
@@ -169,7 +174,7 @@ void initMenu()
   font.setSpacing(1);
   font.setColor(WHITE);
   printMenu(1);
-  //drawMenuSlider();
+  drawMenuSlider();
   drawFrame(menuSel, 1);
 }
 
@@ -338,10 +343,14 @@ void password_func(int butt)
   }*/
   if(menuMode_2 ==-1)
   {
+
     menuSel_2 = encoderPos_2 / encoderStep_2;
+    
     if (menuSel_2 >= menuStart_2 + numScirLines_2)
       {
+        
         menuStart_2  = menuSel_2 - numScirLines_2 + 1;
+        Serial.println(menuStart_2);
         printMenu();
       }
     if (menuSel_2 < menuStart_2)
@@ -352,11 +361,12 @@ void password_func(int butt)
     if(menuSelOld_2 != menuSel_2)
     {
       //TODO: 要改drawFrame，每按一次要往左右邊跑，所以要改變它的X,y
-      //drawFrame(menuSelOld_2, 0);
-      //drawFrame(menuSel_2, 1);
+      drawFrame_2(butt,menuSelOld_2, 0);
+      drawFrame_2(butt,menuSel_2, 1);
       //drawMenuSlider();
       menuSelOld_2 = menuSel_2;
     }
+  
   }
 
 
@@ -400,6 +410,10 @@ void handleMenu()
   {
 
     menuSel = encoderPos / encoderStep;
+    Serial.print("menuSel: ");
+    Serial.println(menuSel);
+    Serial.print("menuSelOld: ");
+    Serial.println(menuSelOld);
     if (menuSel >= numMenus)
     {
       menuSel = numMenus - 1;
@@ -422,6 +436,7 @@ void handleMenu()
       drawMenuSlider();
       menuSelOld = menuSel;
     }
+
     Serial.println(isPressedComfirm);
     if (isPressedComfirm == 1)
     {
@@ -465,7 +480,7 @@ void handleMenu()
 void setup(void)
 {
   Serial.begin(9600);
-
+  Serial.println(numScirLines_2);
   lcd.init();
   font.init(customRect, SCR_WD, SCR_HT); // custom fillRect function and screen width and height values
   initEncoder();
