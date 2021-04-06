@@ -366,6 +366,13 @@ void password_func(int butt)
       //drawMenuSlider();
       menuSelOld_2 = menuSel_2;
     }
+    if (isPressedComfirm)
+    { 
+      Serial.print("encoderPosOld_2: ");
+      Serial.println(encoderPosOld_2);
+      Serial.print("word: ");
+      Serial.println(menuTxt[butt][encoderPosOld_2]);
+    }
   
   }
 
