@@ -91,9 +91,8 @@ int menuStart_2 = 0;
 int direction = -1;
 int storedPos_2 = -1;
 //password
-
 char password[32];
-
+int showSelectFlag = -1;
 int menuMode_2 = -1;
 
 volatile int encoderPos_2 = 0, encoderPosOld_2 = 0, encoderStep_2 = 2; //choose LINE
@@ -319,27 +318,16 @@ void password_func(int butt)
 
   if (isPressedLeft)
   {
+    showSelectFlag = -1;
     encoderPos_2 -= 2;
     Serial.print('1');
   }
 
   if (isPressedRight)
   {
+    showSelectFlag = -1;
     encoderPos_2 += 2;
     Serial.print('2');
-  }
-  if (isPressedDown)
-  {
-    Serial.println("TEST1111111");
-
-    direction = -1;
-    //lcd.fillScreen(RGBto565(255, 255, 255));
-    //initMenu();
-    
-    //menuMode = -1;
-    encoderPos_2 =0;
-    endMenu(butt);
-    
   }
 
   if (encoderPos_2 < 0)
@@ -395,6 +383,8 @@ void password_func(int butt)
       strncat(password, &menuTxt[butt][encoderPosOld_2], 1);
       Serial.print("Select: ");
       Serial.println(password);
+      //show LCD
+      showSelectFlag = 1;
     }
   }
   Serial.println(isPressedDown);
@@ -414,11 +404,13 @@ void handleMenu()
   if (isPressedUp)
   {
     encoderPos--;
-    Serial.print("Up");
   }
 
   if (isPressedDown)
+  {
     encoderPos++;
+  }
+
   if (encoderPos < 0)
     encoderPos = 0;
   if (encoderPosOld == encoderPos && !isPressedUp && !isPressedComfirm)
@@ -520,12 +512,38 @@ void setup(void)
 
 void loop()
 {
+  
+ 
   if (direction == -1)
     handleMenu();
   else if (direction != -1)
 
     password_func(menuSel);
-
-  //delay(110);
-  //有DELAY會連按
+  //show LCD
+  if (showSelectFlag == 1)
+  {
+    lcd.fillScreen(RGBto565(150, 0, 150));
+    font.setColor(WHITE);
+    font.printStr(10, 10, "password:");
+    font.setColor(YELLOW);
+    font.printStr(10, 30, password);
+    while (1)
+    {
+      int isPressedDown = checkPressDown();
+       int isPressedUp = checkPressUp();
+      int isPressedLeft = checkPressLEFT();
+      int isPressedRight = checkPressRIGHT();
+      yield();
+      if (isPressedDown == 1 ||isPressedUp == 1 ||isPressedLeft == 1 ||isPressedRight == 1 )
+      {
+        showSelectFlag = -1;
+        Serial.println("TEST1111111");
+        direction = -1;
+        encoderPos_2 = 0;
+        endMenu(menuSel);
+        break;
+      }
+    }
+  }
+ 
 }
