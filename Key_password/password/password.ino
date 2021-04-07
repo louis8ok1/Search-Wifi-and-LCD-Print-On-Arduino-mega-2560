@@ -169,7 +169,17 @@ void initMenu()
   drawMenuSlider();
   drawFrame(menuSel, 1);
 }
-
+//-----------------------------------------------
+void ReMenu()
+{
+  font.setFont(&rre_fjg_8x16);
+  font.setCharMinWd(8);
+  font.setSpacing(1);
+  font.setColor(WHITE);
+  printMenu();
+  drawMenuSlider();
+  drawFrame(menuSel, 1);
+}
 // -----------------------------------------------
 
 // 0=idle, 1,2,3=click,
@@ -323,11 +333,13 @@ void password_func(int butt)
     Serial.println("TEST1111111");
 
     direction = -1;
-    lcd.fillScreen(RGBto565(255, 255, 255));
-    initMenu();
-    menuMode = -1;
+    //lcd.fillScreen(RGBto565(255, 255, 255));
+    //initMenu();
+    
+    //menuMode = -1;
     encoderPos_2 =0;
-    butt =0;
+    endMenu(butt);
+    
   }
 
   if (encoderPos_2 < 0)
