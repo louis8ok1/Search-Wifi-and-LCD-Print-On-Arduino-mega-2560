@@ -376,10 +376,18 @@ void password_func(int butt)
       Serial.print("word: ");
       Serial.println(menuTxt[butt][encoderPosOld_2]);
     }*/
-    //TODO:在LCD上顯示所選的字
+    //TODO:在LCD上顯示所選的字(DONE)
     if (isPressedComfirm)
     {
-      //Serial.println(menuTxt[butt][encoderPosOld_2]);
+      Serial.println(menuTxt[butt][encoderPosOld_2]);
+      //TODO:能delete和final check!!(做在password_func)
+      //detect "<" and ">"
+      if(menuTxt[butt][encoderPosOld_2]=='>'){
+        //showFinishPicture
+        Serial.println("TEST");
+        showSelectFlag = 2;
+        return ;
+      }
       strncat(password, &menuTxt[butt][encoderPosOld_2], 1);
       Serial.print("Select: ");
       Serial.println(password);
@@ -512,8 +520,7 @@ void setup(void)
 
 void loop()
 {
-  
- 
+
   if (direction == -1)
     handleMenu();
   else if (direction != -1)
@@ -530,20 +537,53 @@ void loop()
     while (1)
     {
       int isPressedDown = checkPressDown();
-       int isPressedUp = checkPressUp();
+      int isPressedUp = checkPressUp();
       int isPressedLeft = checkPressLEFT();
       int isPressedRight = checkPressRIGHT();
       yield();
-      if (isPressedDown == 1 ||isPressedUp == 1 ||isPressedLeft == 1 ||isPressedRight == 1 )
+      if (isPressedDown == 1 || isPressedUp == 1 || isPressedLeft == 1 || isPressedRight == 1)
       {
         showSelectFlag = -1;
-        Serial.println("TEST1111111");
+
         direction = -1;
         encoderPos_2 = 0;
         endMenu(menuSel);
         break;
       }
     }
+
   }
- 
+  if(showSelectFlag ==2){
+    //finish
+    lcd.fillScreen(RGBto565(255, 128, 0));
+    font.setColor(WHITE);
+    font.printStr(10, 10, ">>password<<");
+    font.setColor(RED);
+    font.printStr(10, 40, password);
+    font.setColor(BLUE);
+    font.printStr(10, 70, "It's correct?");
+    font.setColor(BLACK);
+    font.printStr(10, 90, "Comfirm!!!!!!");
+    delay(500);
+    while(1){
+
+      int isPressedComfirm = checkPressComfirm();
+      yield();
+      if(isPressedComfirm == 1)
+      {
+        showSelectFlag = 3;
+        break;
+      }
+    }
+  }
+  if(showSelectFlag == 3){
+    //ending
+    lcd.fillScreen(RGBto565(50, 205, 50));
+    font.setColor(BLACK);
+    font.printStr(10, 40, "Finish Scan!");
+    while(1){
+       yield();
+    }
+  }
+   
 }
