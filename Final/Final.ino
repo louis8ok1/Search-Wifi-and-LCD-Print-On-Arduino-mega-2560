@@ -219,7 +219,7 @@ void initPasswordMenu()
     font.setColor(WHITE);
     printpassword(1);
     drawMenuSlider();
-    drawFrameUpDown(0,1);
+    
 }
 //-----------------------------------------------
 void ReMenu()
@@ -292,6 +292,16 @@ void endMenu(int butt)
         return;
     menuMode = -1;
     initMenu();
+    encoderPos = storedPos;
+}
+
+void endPasswordMenu(int butt)
+{
+    if (!butt)
+        return;
+    menuMode = -1;
+    initPasswordMenu();
+    drawFrameUpDown(menuSel,1);
     encoderPos = storedPos;
 }
 
@@ -374,14 +384,14 @@ void password_func(int butt)
 
     if (isPressedLeft)
     {
-        showSelectFlag = -1;
+
         encoderPos_2 -= 2;
         Serial.print('1');
     }
 
     if (isPressedRight)
     {
-        showSelectFlag = -1;
+
         encoderPos_2 += 2;
         Serial.print('2');
     }
@@ -442,14 +452,14 @@ void password_func(int butt)
             {
                 //showFinishPicture
                 Serial.println("TEST");
-                showSelectFlag = 2;
+                select_mode = 5;
                 return;
             }
             strncat(password, &menuTxt[butt][encoderPosOld_2], 1);
             Serial.print("Select: ");
             Serial.println(password);
             //show LCD
-            showSelectFlag = 1;
+            select_mode = 4;
         }
     }
     Serial.println(isPressedDown);
@@ -591,7 +601,7 @@ void handleMenu()
         Serial.println(isPressedComfirm);
         if (isPressedComfirm == 1)
         {
-           
+
             menuItemInit();
         }
     }
@@ -758,10 +768,9 @@ void loop()
     else if (select_mode == 2)
     {
         
-       
         initPasswordMenu();
         delay(100);
-        
+        drawFrameUpDown(0, 1);
         select_mode = 3;
         menuMode = -1;
         menuSel = 0;
@@ -772,22 +781,93 @@ void loop()
         encoderPosOld = 0;
         //encoderStep = 2;
         menuMode = -1;
-        
-       
-
     }
     //key password
     else if (select_mode == 3)
     {
-            
+
         //up or down
         if (direction == -1)
         {
-            
+
             handleMenuPassword();
         }
 
         else if (direction == 1)
             password_func(menuSel);
     }
+    //show password charter
+    else if (select_mode == 4)
+    {
+        lcd.fillScreen(RGBto565(150, 0, 150));
+        font.setColor(WHITE);
+        font.printStr(10, 10, "password:");
+        font.setColor(YELLOW);
+        font.printStr(10, 30, password);
+        while (1)
+        {
+            int isPressedDown = checkPressDown();
+            int isPressedUp = checkPressUp();
+            int isPressedLeft = checkPressLEFT();
+            int isPressedRight = checkPressRIGHT();
+            yield();
+            if (isPressedDown == 1 || isPressedUp == 1 || isPressedLeft == 1 || isPressedRight == 1)
+            {
+                select_mode = 3;
+
+                direction = -1;
+                encoderPos_2 = 0;
+                Serial.println("GOTOSTEP3");
+                endPasswordMenu(menuSel);
+                break;
+            }
+        }
+    }
+    else if (select_mode == 5)
+    {
+        //finish
+        lcd.fillScreen(RGBto565(255, 128, 0));
+        font.setColor(WHITE);
+        font.printStr(10, 10, ">>password<<");
+        font.setColor(RED);
+        font.printStr(10, 40, password);
+        font.setColor(BLUE);
+        font.printStr(10, 70, "It's correct?");
+        font.setColor(BLACK);
+        font.printStr(10, 90, "Comfirm!!!!!!");
+        delay(500);
+        while (1)
+        {
+
+            int isPressedComfirm = checkPressComfirm();
+            yield();
+            if (isPressedComfirm == 1)
+            {
+                select_mode = 6;
+                break;
+            }
+        }
+    }
+    else if (select_mode == 6)
+    {
+        //ending
+        lcd.fillScreen(RGBto565(50, 205, 50));
+        font.setColor(BLACK);
+        font.printStr(10, 40, "Prepare Connect!");
+        font.setColor(RED);
+        font.printStr(10, 60, "Confirm!");
+        while (1)
+        {
+            
+            int isPressedComfirm = checkPressComfirm();
+            yield();
+            if (isPressedComfirm == 1)
+            {
+                select_mode = 7;
+                break;
+            }
+        }
+    }
+    //WIFI CONNECT
+   
 }
