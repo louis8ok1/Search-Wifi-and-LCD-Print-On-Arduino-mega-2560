@@ -20,7 +20,8 @@ char *menuTxt[] = {
     "v w x y z < >"};
 
 char WifiSelect;
-//char password[] = "1004soc1004";
+//WifiConnectSSID
+int SSID_num = 0;
 
 char ap_list[max_ap][ssid_len];
 int flagConfirmWifiInitial = 0;
@@ -219,7 +220,6 @@ void initPasswordMenu()
     font.setColor(WHITE);
     printpassword(1);
     drawMenuSlider();
-    
 }
 //-----------------------------------------------
 void ReMenu()
@@ -297,12 +297,13 @@ void endMenu(int butt)
 
 void endPasswordMenu(int butt)
 {
-    if (!butt)
-        return;
+    /*if (!butt)
+        return;*/
     menuMode = -1;
     initPasswordMenu();
-    drawFrameUpDown(menuSel,1);
+    drawFrameUpDown(menuSel, 1);
     encoderPos = storedPos;
+    return ;
 }
 
 int holdButton = 0;
@@ -332,6 +333,7 @@ void menuItemAction(int butt)
 {
     //lcd.fillScreen(RGBto565(150,20,150));
     //font.setColor(WHITE);  font.printStr(10, 10, "SOCLAB");
+    SSID_num = butt;
     showSelected(ap_list[butt]);
 
     while (1)
@@ -767,7 +769,7 @@ void loop()
     //initial password menu
     else if (select_mode == 2)
     {
-        
+
         initPasswordMenu();
         delay(100);
         drawFrameUpDown(0, 1);
@@ -789,7 +791,7 @@ void loop()
         //up or down
         if (direction == -1)
         {
-
+        
             handleMenuPassword();
         }
 
@@ -818,6 +820,7 @@ void loop()
                 direction = -1;
                 encoderPos_2 = 0;
                 Serial.println("GOTOSTEP3");
+                delay(50);
                 endPasswordMenu(menuSel);
                 break;
             }
@@ -848,6 +851,7 @@ void loop()
             }
         }
     }
+    //WIFI CONNECT
     else if (select_mode == 6)
     {
         //ending
@@ -858,16 +862,47 @@ void loop()
         font.printStr(10, 60, "Confirm!");
         while (1)
         {
-            
+
             int isPressedComfirm = checkPressComfirm();
             yield();
+            //showWait();
             if (isPressedComfirm == 1)
             {
-                select_mode = 7;
+                if (wifi.joinAP(ap_list[SSID_num], password))
+                {
+                    Serial.print("Join AP success\r\n");
+                    Serial.print("IP: ");
+                    Serial.println(wifi.getLocalIP().c_str());
+                    select_mode = 7;
+                    
+                    direction = 3;
+                }
+                else
+                {
+                    Serial.print("Join AP failure\r\n");
+                    
+                    select_mode = 7;
+                    direction = 4;
+                }
+
                 break;
             }
         }
     }
-    //WIFI CONNECT
-   
+    else if(select_mode == 7){
+        if(direction ==3){
+             showSuccessConnect(ap_list[SSID_num]);
+             while(1){
+                 yield();
+
+             }
+        }
+        else if(direction == 4 ){
+             showfailureConnect(ap_list[SSID_num]);
+             while(1){
+                 yield();
+
+             }
+        }
+    }
 }
