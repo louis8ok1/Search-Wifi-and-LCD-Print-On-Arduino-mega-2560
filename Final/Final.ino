@@ -191,7 +191,11 @@ void drawFrame(int sel, int stat)
 {
     lcd.drawRect(0, (sel - menuStart) * itemHt, 120, itemHt - 1, stat ? frameCol : bgCol);
 }
-void drawFrame_2(int butt, int sel, int stat)
+void drawFrameUpDown(int sel, int stat)
+{
+    lcd.drawRect(0, (sel - menuStart) * itemHt, 15, itemHt - 1, stat ? frameCol : bgCol);
+}
+void drawFrameRightLeft(int butt, int sel, int stat)
 {
     lcd.drawRect((sel - menuStart_2) * 18, (butt - menuStart) * itemHt, 15, itemHt - 1, stat ? frameCol : bgCol);
 }
@@ -215,7 +219,7 @@ void initPasswordMenu()
     font.setColor(WHITE);
     printpassword(1);
     drawMenuSlider();
-    drawFrame(menuSel, 1);
+    drawFrameUpDown(0,1);
 }
 //-----------------------------------------------
 void ReMenu()
@@ -416,8 +420,8 @@ void password_func(int butt)
         if (menuSelOld_2 != menuSel_2)
         {
             //TODO: 要改drawFrame，每按一次要往左右邊跑，所以要改變它的X,y
-            drawFrame_2(butt, menuSelOld_2, 0);
-            drawFrame_2(butt, menuSel_2, 1);
+            drawFrameRightLeft(butt, menuSelOld_2, 0);
+            drawFrameRightLeft(butt, menuSel_2, 1);
             //drawMenuSlider();
             menuSelOld_2 = menuSel_2;
         } /*
@@ -463,14 +467,14 @@ void handleMenuPassword()
 
     if (isPressedUp)
     {
+
         encoderPos--;
-        Serial.println("encoderPos");
     }
 
     if (isPressedDown)
     {
+
         encoderPos++;
-        Serial.println("encoderPos");
     }
 
     if (encoderPos < 0)
@@ -517,8 +521,8 @@ void handleMenuPassword()
         }
         if (menuSelOld != menuSel)
         {
-            drawFrame(menuSelOld, 0);
-            drawFrame(menuSel, 1);
+            drawFrameUpDown(menuSelOld, 0);
+            drawFrameUpDown(menuSel, 1);
             drawMenuSlider();
             menuSelOld = menuSel;
         }
@@ -586,7 +590,10 @@ void handleMenu()
         }
         Serial.println(isPressedComfirm);
         if (isPressedComfirm == 1)
+        {
+           
             menuItemInit();
+        }
     }
     else if (menuMode != -1)
     {
@@ -594,14 +601,7 @@ void handleMenu()
             menuItemAction(menuSel);
         else if (select_mode == 2)
         {
-            menuMode = -1;
-            menuSel = 0;
-            menuSelOld = 0;
-            menuStart = 0;
-            storedPos = 0;
-            encoderPos = 0;
-            encoderPosOld = 0;
-            //encoderStep = 2;
+
             return;
         }
     }
@@ -757,19 +757,36 @@ void loop()
     //initial password menu
     else if (select_mode == 2)
     {
+        
+       
         initPasswordMenu();
         delay(100);
         
         select_mode = 3;
+        menuMode = -1;
+        menuSel = 0;
+        menuSelOld = 0;
+        menuStart = 0;
+        storedPos = 0;
+        encoderPos = 0;
+        encoderPosOld = 0;
+        //encoderStep = 2;
+        menuMode = -1;
+        
+       
+
     }
     //key password
     else if (select_mode == 3)
     {
-        
+
         //up or down
         if (direction == -1)
-
+        {
+            
             handleMenuPassword();
+        }
+
         else if (direction == 1)
             password_func(menuSel);
     }
