@@ -779,7 +779,7 @@ void loop()
     //key password
     else if (select_mode == 3)
     {
-
+            
         //up or down
         if (direction == -1)
         {
